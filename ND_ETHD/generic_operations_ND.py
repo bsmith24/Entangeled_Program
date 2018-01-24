@@ -17,12 +17,15 @@ def harmonic_oscillator(q, w, m, dim):
 
     """
     Defines the potential for the Harmonic Oscillator
+    This potential can be expressed in N dimensions
+ 
     1D: V(q[0]) = 0.5*m*w*w*(q[0]*q[0])
-    2D: V(q_x,q_y) = 0.5*m*w*w(q_x*q_x + q_y*q_y)
-    Params in:
-    q = position of particle
-    m = list of masses 
-    w = potential specfifc constant 
+    2D: V(q1,q2) = 0.5*m*w*w(q1*q1 + q2*q2)
+
+    Params in:  q = list of trajectory positions
+                w = potential specfifc constant 
+                m = list of masses 
+                dim - # of dof for each trajectory
     """    
 
     # Initilize list for potential energy and force
@@ -39,11 +42,12 @@ def harmonic_oscillator(q, w, m, dim):
     pot = [ [0.0]*dim , [0.0]*dim ]
     f = []
 
-    #print "pot = ", pot
-    #print "f = ", f
-    #print "\n"
-    #sys.exit(0)
-
+    """
+    print "pot = ", pot
+    print "f = ", f
+    print "\n"
+    sys.exit(0)
+    """
     for i in xrange(N):
         f.append( [0.0]*dim )    
         for j in xrange(dim):
@@ -53,18 +57,24 @@ def harmonic_oscillator(q, w, m, dim):
             # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
             f[i][j] = -m[i]*w*w*q[i][j] 
 
-    #print "pot = ", pot
-    #print "f = ", f
-    #print "\n"
-    #sys.exit(0)
+    """
+    print "pot = ", pot
+    print "f = ", f
+    print "\n"
+    sys.exit(0)
+    """
 
     return pot, f
 
 def double_well_potential(q, dim):
-# Defines the double_well potential. 
-# V(q) = A * ( 0.25*q^4 - 0.5*q^2 )
-#Params in:  q = list of trajectory positions
 
+    """
+    This potential can be expressed in N dimensions
+    1D expression: V(q) = A * ( 0.25*q^4 - 0.5*q^2 )
+
+    Params in:  q = list of trajectory positions
+                dim - # of dof for each trajectory
+    """
 
     C = 1.0
     a, b = 0.25, 0.5
@@ -92,13 +102,127 @@ def double_well_potential(q, dim):
             # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
             f[i][j] =  -C*( 4.0*a*q3[i][j] - 2.0*b*q[i][j] )
 
+    """
     print "pot = ", pot
     print "f = ", f
     print "\n"
-    #sys.exit(0)
+    sys.exit(0)
+    """
 
     return pot, f
 
+
+def Martens_Type1(q, dim):
+
+    """
+    This potential is coded strictly for two dimensions:
+
+    V(q1,q2) = Va*sech^2(2*q1) + 0.5*Vb*q2*q2
+    sech(q) = 1/(math.cosh(q)
+    sech^2(q) = (1/math.cosh(q))*(1/math.cosh(q))
+
+    Params in:  q = list of trajectory positions
+                dim - # of dof for each trajectory 9stricktly 2 for this potential)
+    """
+
+    if dim != 2:
+        print "\n", "ERROR"
+        print "Must use 2 degrees of freedom in order to use model potential: Marten's Type1"
+        print "Please check model potential type or try adjusting the variable dim to 2"
+        sys.exit(0)
+  
+    else:
+
+        # Define Constants
+        Va, Vb = 0.00625, 0.0106
+
+        N = len(q)
+        pot = [ [0.0]*dim , [0.0]*dim ]
+        f = []
+        for i in xrange(N):
+
+            f.append( [0.0]*dim )    
+
+            sech =  1.0/math.cosh(2.0*q[i][0])
+            sech2 = sech*sech
+
+            pot[0][0] = pot[0][0] + Va*sech2
+            pot[0][1] = pot[0][1] + 0.5*Vb*q[i][1]*q[i][1] 
+
+     
+            # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
+            f[i][0] = 0.025*math.tanh(2.0*q[i][0])*sech2
+            f[i][1] = - Vb*q[i][1]
+
+
+        """
+        print "pot = ", pot
+        print "f = ", f
+        print "\n"
+        sys.exit(0)
+        """
+
+        return pot, f
+
+
+def Martens_Type2(q, dim):
+
+    """
+    Currently not working - 1/23/17 
+    Declared working on - 
+
+    This potential is strictly coded for two dimensions:
+
+    V(q1,q2) = Va*sech^2(2*q1) + 0.5*Vb*(q2 + Vc*(q1^2 - 1.0))^2
+    sech(q) = 1/(math.cosh(q)
+    sech^2(q) = (1/math.cosh(q))*(1/math.cosh(q))
+
+    Params in:  q = list of trajectory positions
+                dim - # of dof for each trajectory
+    """
+
+    if dim != 2:
+        print "\n", "ERROR"
+        print "Must use 2 degrees of freedom in order to use model potential: Marten's Type2"
+        print "Please check model potential type or try adjusting the variable dim to 2"
+        sys.exit(0)
+  
+    else:
+
+        # Define Constants
+        Va, Vb, Vc = 0.00625, 0.0106, 0.4
+
+        N = len(q)
+        pot = [ [0.0]*dim , [0.0]*dim ]
+        f = []
+        for i in xrange(N):
+
+            f.append( [0.0]*dim )    
+
+            x = q[i][0]
+            y = q[i][1]
+
+            sech =  1.0/math.cosh(2.0*x)
+            sech2 = sech*sech
+
+            # Here, pot[0][0] will carry the non coupled part of the potential
+            # pot[0][1] will carry the coupled part of the potential
+
+            pot[0][0] = pot[0][0] + Va*sech2
+            pot[0][1] = pot[0][1] + 0.5*Vb*(y + Vc*(x*x - 1.0))**2.0 
+
+            # Recall q[particle_index][dimension] -> q[0][1] = first particle, 2nd dof
+            f[i][0] = - (0.00848*x*(0.4*(x*x - 1.0) + y) - 0.025*math.tanh(2.0*x)*sech2)
+            f[i][1] = - (0.00424*x*x + 0.0106*y - 0.00424)
+
+        """
+        print "pot = ", pot
+        print "f = ", f
+        print "\n"
+        sys.exit(0)
+        """
+
+        return pot, f
 
 def compute_kin(p,m, dim):
 

@@ -171,31 +171,58 @@ def main(qq, pq, w, q_grid, p_grid, Nsteps, Nsnaps, m, dim, dt, approx, model, e
 # Initilize lists of position, momentum, and mass
 qq = []; pq = []; m = []
 # Declare Number of trajectories 
-Ntraj = 2 
+Ntraj = 100 
 dim = 2
-
-rnd = Random()
-sigma_q, sigma_p, q_mean, p_mean = [], [], [], []
-for i in xrange(dim):
-
-    q_mean.append( -1.1 )	                      
-    p_mean.append( 0.0 )                 
-    sigma_q.append( 0.04 )
-    sigma_p.append( 0.0 )               
-
-#"""
-print "\n" 
-print "q_mean = ", q_mean
-print "p_mean = ", p_mean
-print "sigma_q = ", sigma_q
-print "sigma_p = ", sigma_p
-print "\n"
-#sys.exit(0)
-#"""
-
 # Decalre system variables
 mass = 2000
 w = 0.1
+
+rnd = Random()
+
+# For 2D case:
+q1_mean, p1_mean, sigma_q1, sigma_p1 = -1.0, 0.0, 0.05, 0.0
+q2_mean, p2_mean, sigma_q2, sigma_p2 =  0.0, 0.0, 0.05, 0.0
+
+# Initilize trajectories
+for i in xrange(Ntraj):
+    qq.append( [0.0]*dim )
+    pq.append( [0.0]*dim )
+
+    # If using Libra:
+    qq[i][0] = q1_mean + sigma_q1 * rnd.normal()
+    pq[i][0] = p1_mean + sigma_p1 * rnd.normal()
+    qq[i][1] = q2_mean + sigma_q2 * rnd.normal()
+    pq[i][1] = p2_mean + sigma_p2 * rnd.normal()
+
+    m.append( mass )
+
+print "\n"
+print "q1_mean = ", q1_mean
+print "p1_mean = ", p1_mean
+print "sigma_q1 = ", sigma_q1
+print "sigma_p1 = ", sigma_p1
+print "\n"
+print "q2_mean = ", q2_mean
+print "p2_mean = ", p2_mean
+print "sigma_q2 = ", sigma_q2
+print "sigma_p2 = ", sigma_p2
+print "\n"
+print "q = ", qq
+print "p = ", pq
+print "\n"
+#sys.exit(0)
+# End 2D case
+#"""
+
+
+"""
+# For ND case
+sigma_q, sigma_p, q_mean, p_mean = [], [], [], []
+for i in xrange(dim):
+    q_mean.append( -1.1 )	                      
+    p_mean.append( 0.0 )                 
+    sigma_q.append( 0.04 )
+    sigma_p.append( 0.0 )
 
 # Initilize trajectories
 for i in xrange(Ntraj):
@@ -213,10 +240,18 @@ for i in xrange(Ntraj):
 
     m.append( mass )
 
+print "\n" 
+print "q_mean = ", q_mean
+print "p_mean = ", p_mean
+print "sigma_q = ", sigma_q
+print "sigma_p = ", sigma_p
+print "\n"
 print "q = ", qq
 print "p = ", pq
 print "\n"
-#sys.exit(0)
+sys.exit(0)
+End ND case
+#"""
 
 q_grid = []; p_grid = []
 for i in range(-150,200):
@@ -226,10 +261,10 @@ for i in range(-100,500):
     p_grid.append(0.1*i)                                
 
 ent_type = 1      # 1 - ETHD, 2 - RPMD, 3 - QHD2
-model = 2         # 1 - harmonic oscillator, 2 - double well 
+model = 2         # 1 - harmonic oscillator, 2 - double well, 3 - Martens_2D #1, 4 - Martens_2D #2 
 vel_rescale = 0   # 0 - no, 1 - yes
 approx = 2        # 1 - H = H0,  2 - H = H0 + H1
-dt = 0.1
+dt = 1.0
 Nsnap = 500
 Nstep = 1
 #                          

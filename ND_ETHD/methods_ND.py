@@ -21,6 +21,10 @@ def compute_ETHD_pot_force(q, w, m, dim, approx, model):
         pot, f = generic_operations_ND.harmonic_oscillator(q, w, m, dim)
     if model == 2:
         pot, f = generic_operations_ND.double_well_potential(q, dim)
+    if model == 3:
+        pot, f = generic_operations_ND.Martens_Type1(q, dim)
+    if model == 4:
+        pot, f = generic_operations_ND.Martens_Type2(q, dim)
 
     if approx == 2:
  
@@ -59,20 +63,16 @@ def compute_ETHD_pot_force(q, w, m, dim, approx, model):
         for j in range(dim):
             denom.append( 4.0*m_avg*s2[j]*s2[j] )
 
-        for i in range(N):           
+        for i in range(N):
+            f.append( [0.0]*dim )
+
             for j in range(dim):
                 f[i][j] = f[i][j] + (q[i][j] - avg_q[j])/denom[j]  
-
-
-        #print "\n"
-        #print "Potential with Perturbation = ", pot
-        #print "Force with Perturbation = ", f        
-        #print "\n"
-        #sys.exit(0)
 
         #"""
         
         # Method 2 (Should be equivalent to Method 1, simply a different way of expressing s^2 )
+        # *** This is outdated in the ND_ETHD
         """
         q_1_avg = sumq_1/float(N)
         q_2_avg = sumq_2/float(N)
